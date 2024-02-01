@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import useCategories from '../../custom/useCategories';
 import { Link } from 'react-router-dom'
-import Swal from 'sweetalert2';
 import { useDebounce } from 'use-debounce';
 
 
