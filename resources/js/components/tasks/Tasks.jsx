@@ -48,59 +48,23 @@ export default function Posts() {
         setCategories(fetchedCategories);
     }
 
-    const checkIfTaskIsDone = (done) => (
-        done ? 
-            (
-                <span className='badge bg-success'>
-                    Done
-                </span>
-            )
-            :
-            (
-                <span className='badge bg-danger'>
-                    Processing...
-                </span>
-            )
-    )
+
 
     const fetchNextPrevTasks = (link) => {
         const url = new URL(link);
         setPage(url.searchParams.get('page'));
     }
 
-    const deleteTask = (taskId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const respone = await axios.delete(`/api/tasks/${taskId}`);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: respone.data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    fetchTasks();
-                } catch (error) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Something went wrong try later',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            }
-        });
-    }
+    const deleteTask = async (taskId) => {
+        try {
+            const response = await axios.delete(`/api/tasks/${taskId}`);
+
+            fetchTasks(); 
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
+    };
+    
 
     const renderPaginationLinks = () => {
         return <ul className="pagination">
@@ -119,59 +83,95 @@ export default function Posts() {
 
     return (
         <div className="row my-5">
-            <div className="col-md-9 card">
+            <div className="col-md-12 card">
                 <div className="row my-3">
-                    <div className="col-md-4">
-                        <div className="form-group">
-                            <input type="text" 
-                                value={searchTerm}
-                                onChange={(e) => {
-                                    setCatId(null);
-                                    setOrderBy(null);
-                                    setPage(1);
-                                    setSearchTerm(e.target.value);
-                                }}
-                                placeholder="Search..." 
-                                className="form-control rounded-0 border border-dark" />
+                    <div className="col-md-9 card">
+                        <div className="row my-3">
+                            <div className="col-md-4">
+                                <div className="form-group">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setCatId(null);
+                                            setPage(1);
+                                            setSearchTerm(e.target.value);
+                                        }}
+                                        placeholder="Search..."
+                                        className="form-control rounded-0 border border-dark"
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <select
+                                    className="form-select"
+                                    value={catId || ''}
+                                    onChange={(event) => {
+                                        const selectedCategoryId = event.target.value;
+                                        setSearchTerm('');
+                                        setPage(1);
+                                        setCatId(selectedCategoryId);
+                                    }}
+                                >
+                                    <option value="">All Category</option>
+                                    {categories?.map(category => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className="card-body">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th>Body</th>
-                                <th>Done</th>
-                                <th>Category</th>
-                                <th>Created</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                tasks.data?.map(task => (
-                                    <tr key={task.id}>
-                                        <td>{task.id}</td>
-                                        <td>{task.title}</td>
-                                        <td>{task.body}</td>
-                                        <td>
-                                            {
-                                                checkIfTaskIsDone(task.done)
-                                            }
-                                        </td>
-                                        <td>{task.category.name}</td>
-                                        <td>{task.created_at}</td>
-                                        <td className="d-flex">
-                                            <Link to={`edit/${task.id}`} className="btn btn-sm btn-warning"><i className="fas fa-edit"></i></Link>
-                                            <button onClick={() => deleteTask(task.id)} className="btn btn-sm btn-danger mx-1"><i className="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
+                    <div className="row my-5">
+                        {tasks.data?.map(task => (
+                            <div className="col-md-4 mb-4" key={task.id}>
+                                <div className="card" style={{ width: '18rem' }}>
+                                    <div className="card-body">
+                                        <h5 className="card-title">{task.title}</h5>
+                                        <h6 className="card-subtitle mb-2 text-muted">{task.body}</h6>
+                                        <h6 className="card-subtitle mb-2 text-muted">{task.category.name}</h6>
+                                        <div className="d-flex">
+                                        <Link to={`edit/${task.id}`} style={{
+                                                border: 'none',
+                                                color: '#fff',
+                                                backgroundImage: 'linear-gradient(30deg, #33FFFC, #33FFE0)', // Adjust gradient colors
+                                                borderRadius: '20px',
+                                                backgroundSize: '100% auto',
+                                                fontFamily: 'inherit',
+                                                fontSize: '17px',
+                                                padding: '0.6em 1.5em',
+                                                marginRight: '10px' // Add margin to create space between buttons
+                                            }} className="btn btn-sm btn-warning">
+                                                Edit
+                                            </Link>
+
+                                            <button
+                                                style={{
+                                                    border: 'none',
+                                                    color: '#fff',
+                                                    backgroundImage: 'linear-gradient(30deg, #FF3333, #fdd55b)', // Adjust gradient colors
+                                                    borderRadius: '20px',
+                                                    backgroundSize: '100% auto',
+                                                    fontFamily: 'inherit',
+                                                    fontSize: '17px',
+                                                    padding: '0.6em 1.5em',
+                                                }}
+                                                onClick={() => deleteTask(task.id)}
+                                            >
+                                                Delete
+                                            </button>
+</div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+    
                     <div className="my-4 d-flex justify-content-between">
                         <div>
                             Showing {tasks.from || 0} to {tasks.to || 0} from {tasks.total} results.
@@ -182,130 +182,8 @@ export default function Posts() {
                     </div>
                 </div>
             </div>
-            <div className="col-md-3">
-                <div className="card">
-                    <div className="card-header text-center bg-white">
-                        <h5 className="mt-2">Filter by category</h5>
-                    </div>
-                    <div className="card-body">
-                        <div className="form-check">
-                            <input name="category" className="form-check-input" 
-                                onChange={() => {
-                                    setOrderBy(null);
-                                    setCatId(null);
-                                    setSearchTerm('');
-                                    setPage(1);
-                                    fetchTasks();
-                                }}
-                                type="radio" checked={!catId ? true : false}/>
-                            <label className="form-check-label" htmlFor="category">
-                                All
-                            </label>
-                        </div>
-                        {
-                            categories?.map(category => (
-                                <div className="form-check" key={category.id}>
-                                    <input name="category" className="form-check-input" 
-                                        onChange={(event) => {
-                                            setOrderBy(null);
-                                            setSearchTerm('');
-                                            setPage(1);
-                                            setCatId(event.target.value);
-                                        }}
-                                        type="radio" value={category.id} id={category.id} />
-                                    <label className="form-check-label" htmlFor={category.id}>
-                                        {category.name}
-                                    </label>
-                                </div>
-                              
-                            ))
-                        }
-                    </div>
-                </div>
-                <div className="card mt-2">
-                    <div className="card-header text-center bg-white">
-                        <h5 className="mt-2">Order by</h5>
-                    </div>
-                    <div className="card-body">
-                        <div>
-                            <h6>ID</h6>
-                            <div className="form-check">
-                                <input name="id" className="form-check-input" 
-                                    onChange={(event) => {
-                                        setCatId(null);
-                                        setSearchTerm('');
-                                        setPage(1);
-                                        setOrderBy({
-                                            column: 'id',
-                                            direction: event.target.value
-                                        });
-                                    }}
-                                    type="radio" value="asc" 
-                                    checked={orderBy && orderBy.column === 'id' && orderBy.direction === 'asc' ? true : false}/>
-                                <label className="form-check-label" htmlFor="id">
-                                    <i className="fas fa-arrow-up"></i>
-                                </label>
-                            </div>
-                            <div className="form-check">
-                                <input name="id" className="form-check-input" 
-                                    onChange={(event) => {
-                                        setCatId(null);
-                                        setSearchTerm('');
-                                        setPage(1);
-                                        setOrderBy({
-                                            column: 'id',
-                                            direction: event.target.value
-                                        });
-                                    }}
-                                    type="radio" value="desc"
-                                    checked={orderBy && orderBy.column === 'id' && orderBy.direction === 'desc' ? true : false}/>
-                                <label className="form-check-label" htmlFor="id">
-                                    <i className="fas fa-arrow-down"></i>
-                                </label>
-                            </div>
-                        </div>
-                        <div className="my-3">
-                            <h6>Title</h6>
-                            <div className="form-check">
-                                <input name="title" className="form-check-input" 
-                                    onChange={(event) => {
-                                        setCatId(null);
-                                        setSearchTerm('');
-                                        setPage(1);
-                                        setOrderBy({
-                                            column: 'title',
-                                            direction: event.target.value
-                                        });
-                                    }}
-                                    type="radio" value="asc"
-                                    checked={orderBy && orderBy.column === 'title' && orderBy.direction === 'asc' ? true : false}/>
-                                <label className="form-check-label" htmlFor="title">
-                                    <i className="fas fa-arrow-up"></i>
-                                    <span className="mx-2">A-Z</span>
-                                </label>
-                            </div>
-                            <div className="form-check">
-                                <input name="title" className="form-check-input" 
-                                    onChange={(event) => {
-                                        setCatId(null);
-                                        setSearchTerm('');
-                                        setPage(1);
-                                        setOrderBy({
-                                            column: 'title',
-                                            direction: event.target.value
-                                        });
-                                    }}
-                                    type="radio" value="desc"
-                                    checked={orderBy && orderBy.column === 'title' && orderBy.direction === 'desc' ? true : false}/>
-                                <label className="form-check-label" htmlFor="title">
-                                    <i className="fas fa-arrow-down"></i>
-                                    <span className="mx-2">Z-A</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
-    )
+    );
+    
 }

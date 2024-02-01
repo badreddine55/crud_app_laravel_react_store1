@@ -62,35 +62,35 @@ export default function Create() {
           <div className="card">
             <div className="card-header bg-white">
               <h5 className="text-center mt-2">
-                Create new task
+                Create new Prodact
               </h5>
             </div>
             <div className="card-body">
               <form className="mt-5" onSubmit={(e) => formSubmit(e)}>
                 <div className="mb-3">
-                    <label htmlFor="title" className="form-label">Title*</label>
+                    <label htmlFor="title" className="form-label">The_prodact</label>
                     <input 
                       type="text" 
                       name="title"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="form-control" 
-                      placeholder="Title*" />
+                      placeholder="Name" />
                       {renderErrors('title')}
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="body" className="form-label">Description*</label>
+                    <label htmlFor="body" className="form-label">Description</label>
                     <textarea 
                       className="form-control" 
                       name="body" 
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
-                      placeholder="Body*"
+                      placeholder="Description"
                       rows="3"></textarea>
                       {renderErrors('body')}
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="category_id" className="form-label">Category*</label>
+                    <label htmlFor="category_id" className="form-label">Category</label>
                     <select 
                         name="category_id" 
                         onChange={(e) => setCategoryId(e.target.value)}
@@ -114,9 +114,19 @@ export default function Create() {
                       :
                       <button
                           type="submit" 
-                          className="btn btn-primary">
+                          style={{
+                              border: 'none',
+                              color: '#fff',
+                              backgroundImage: 'linear-gradient(30deg, #FF3333, #fdd55b)', // Adjust gradient colors
+                              borderRadius: '20px',
+                              backgroundSize: '100% auto',
+                              fontFamily: 'inherit',
+                              fontSize: '17px',
+                              padding: '0.6em 1.5em',
+                          }}>
                           Create
                       </button>
+
                   }
                 </div>
               </form>
